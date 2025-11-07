@@ -74,6 +74,8 @@ export abstract class ObjectBase<T extends ObjectBaseModel> {
         e.style.setProperty('-webkit-perspective-origin-y', `${originY}%`);
     }
 
+    abstract doesPointIntersect(point: XY): boolean;
+
     abstract create(): this;
 
     place(appendAsChildTo: HTMLElement) {

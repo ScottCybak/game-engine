@@ -1,5 +1,5 @@
 import { Coordinates } from "coordinates";
-import { ObjectBase, ObjectBaseModel } from "object-base";
+import { ObjectBase, ObjectBaseModel, XY } from "object-base";
 import { OBJECT_TYPE } from "object-type";
 
 export interface CuboidObjectModel extends ObjectBaseModel {
@@ -15,6 +15,17 @@ export interface CuboidObjectModel extends ObjectBaseModel {
 }
 // https://codepen.io/desandro/pen/bMqZmr (sample/helper)
 export class CuboidObject extends ObjectBase<CuboidObjectModel> {
+
+    doesPointIntersect([x, y]: XY): boolean {
+        const { top, left, width, height } = this.limits;
+        return (
+            x >= left
+            && x <= left + width
+            && y >= top
+            && y <= top + height
+        )
+    }
+
     create() {
         const { data } = this;
         const { size, style } = data;

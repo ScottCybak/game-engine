@@ -90,16 +90,21 @@ export class World {
         if (commands.has(COMMAND.MOVE_UP)) y = y - 1 * multiplier;
         if (x || y) {
             const [l, t] = this.currentPosition.get();
-            const newPos = this.canMove([l+x, t+y]);
-            if (x !== newPos[0] || y !== newPos[1]) {
-                this.currentPosition.set(newPos);
+            const targetPos: XY = [l+x, t+y];
+            const candidatePos = this.canMove(targetPos);
+            if (candidatePos) {
+                this.currentPosition.set(candidatePos);
             }
         }
     }
 
-    private canMove(to: XY): XY {
-        // if we collide with an object, and only 1 direction, then we stop
-        // if we collide with an object, and 2 directions, we need to stop 1 of them and let the other contiue (angled wall run)
+    private canMove(to: XY): false | XY {
+        // scan for objects
+        const intersections = this.loadedObjects.filter(o => o.doesPointIntersect(to));
+        if (intersections.length) {
+            // todo; this should be smarter - if moving sw against a flat NS oriented plane, we should continue south
+            return false;
+        }
         return to;
     }
 
