@@ -19,6 +19,7 @@
     "connect-livereload": "^0.6.1",
     "esbuild": "^0.19.0",
     "express": "^4.18.2",
+    "fs-extra": "^11.3.2",
     "livereload": "^0.10.3"
   }
 }

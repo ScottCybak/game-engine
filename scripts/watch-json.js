@@ -1,17 +1,23 @@
-// scripts/watch-json.js
-import fs from "fs";
+// scripts/dev-server.js
 import path from "path";
+import { pathToFileURL } from "url";
 import chokidar from "chokidar";
 import * as esbuild from "esbuild";
-import { pathToFileURL } from "url";
+import fs from "fs-extra";
 
 const SRC_DIR = path.resolve("data");
 const OUT_DIR = path.resolve("dist/data");
+const ASSETS_SRC = path.resolve("assets");
+const ASSETS_DEST = path.resolve("dist/assets");
 
-fs.mkdirSync(OUT_DIR, { recursive: true });
+// Ensure output directories exist
+fs.ensureDirSync(OUT_DIR);
+fs.ensureDirSync(ASSETS_DEST);
 
+// ---------------------
+// TypeScript -> JSON
+// ---------------------
 async function loadTsModule(filePath) {
-  // Compile TypeScript to JavaScript using esbuild (in-memory)
   const result = await esbuild.build({
     entryPoints: [filePath],
     bundle: true,
@@ -21,27 +27,21 @@ async function loadTsModule(filePath) {
   });
 
   const jsCode = result.outputFiles[0].text;
-
-  // Write to a temporary .mjs file
   const tmpFile = path.join(
     OUT_DIR,
     `.__tmp_${path.basename(filePath, ".ts")}.mjs`
   );
+
   fs.writeFileSync(tmpFile, jsCode, "utf8");
 
-  // Convert to proper file:// URL (Windows safe)
   const fileUrl = pathToFileURL(tmpFile).href + `?update=${Date.now()}`;
-
-  // Dynamically import compiled module
   const module = await import(fileUrl);
 
-  // Clean up temp file
   fs.unlinkSync(tmpFile);
-
   return module;
 }
 
-async function processFile(filePath) {
+async function processTsFile(filePath) {
   try {
     const module = await loadTsModule(filePath);
     const [exportName, value] = Object.entries(module)[0] || [];
@@ -56,31 +56,84 @@ async function processFile(filePath) {
       path.basename(filePath, path.extname(filePath)) + ".json"
     );
 
-    fs.writeFileSync(outPath, JSON.stringify(value, null, 2));
+    await fs.writeJson(outPath, value, { spaces: 2 });
     console.log(`✅ Wrote ${outPath}`);
   } catch (err) {
     console.error(`❌ Error processing ${filePath}:`, err.message);
   }
 }
 
-function startWatcher() {
-  const watcher = chokidar.watch(`${SRC_DIR}/*.ts`, { ignoreInitial: false });
+// ---------------------
+// Assets copy/remove
+// ---------------------
+async function copyAsset(srcPath) {
+  const destPath = path.join(ASSETS_DEST, path.relative(ASSETS_SRC, srcPath));
+  try {
+    await fs.copy(srcPath, destPath, { overwrite: true });
+    console.log(`✅ Copied ${path.relative(ASSETS_SRC, srcPath)}`);
+  } catch (err) {
+    console.error(`❌ Error copying ${path.relative(ASSETS_SRC, srcPath)}:`, err.message);
+  }
+}
 
-  watcher
-    .on("add", processFile)
-    .on("change", processFile)
-    .on("unlink", (filePath) => {
+async function removeAsset(srcPath) {
+  const destPath = path.join(ASSETS_DEST, path.relative(ASSETS_SRC, srcPath));
+  try {
+    await fs.remove(destPath);
+    console.log(`🗑️ Removed ${path.relative(ASSETS_SRC, srcPath)}`);
+  } catch (err) {
+    console.error(`❌ Error removing ${path.relative(ASSETS_SRC, srcPath)}:`, err.message);
+  }
+}
+
+// ---------------------
+// Initial asset sync
+// ---------------------
+async function syncAssets() {
+  try {
+    await fs.copy(ASSETS_SRC, ASSETS_DEST, { overwrite: true });
+    console.log("✅ Initial sync of assets completed.");
+  } catch (err) {
+    console.error("❌ Error during initial asset sync:", err.message);
+  }
+}
+
+// ---------------------
+// Start watchers
+// ---------------------
+function startWatcher() {
+  // Watch TypeScript files
+  const tsWatcher = chokidar.watch(`${SRC_DIR}/*.ts`, { ignoreInitial: false });
+  tsWatcher
+    .on("add", processTsFile)
+    .on("change", processTsFile)
+    .on("unlink", async (filePath) => {
       const outPath = path.join(
         OUT_DIR,
         path.basename(filePath, path.extname(filePath)) + ".json"
       );
-      if (fs.existsSync(outPath)) {
-        fs.unlinkSync(outPath);
+      if (await fs.pathExists(outPath)) {
+        await fs.remove(outPath);
         console.log(`🗑️ Removed ${outPath}`);
       }
     });
 
-  console.log(`👀 Watching ${SRC_DIR} for .ts file changes...`);
+  // Watch assets
+  const assetsWatcher = chokidar.watch(`${ASSETS_SRC}/**/*`, { ignoreInitial: false });
+  assetsWatcher
+    .on("add", copyAsset)
+    .on("change", copyAsset)
+    .on("addDir", copyAsset)
+    .on("unlink", removeAsset)
+    .on("unlinkDir", removeAsset);
+
+  console.log(`👀 Watching ${SRC_DIR} and ${ASSETS_SRC}...`);
 }
 
-startWatcher();
+// ---------------------
+// Run everything
+// ---------------------
+(async () => {
+  await syncAssets();
+  startWatcher();
+})();

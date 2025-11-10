@@ -1,6 +1,6 @@
 import chokidar from 'chokidar';
 import esbuild from 'esbuild';
-import fs from 'fs';
+import fs from 'fs-extra';
 import express from 'express';
 import livereload from 'livereload';
 import connectLivereload from 'connect-livereload';
@@ -16,28 +16,30 @@ const srcDir = resolve(__dirname, '../src');
 const assetsDir = resolve(__dirname, '../assets');
 
 // Ensure dist exists
-if (!fs.existsSync(distDir)) fs.mkdirSync(distDir, { recursive: true });
+fs.ensureDirSync(distDir);
 
-// Copy assets once
-function copyAssets() {
+// --------------------
+// Copy assets safely
+// --------------------
+async function copyAssets() {
   if (!fs.existsSync(assetsDir)) return;
-  fs.readdirSync(assetsDir).forEach(file => {
-    const srcFile = join(assetsDir, file);
-    const destFile = join(distDir, file);
-
-    // Only copy if changed
-    if (!fs.existsSync(destFile) || fs.statSync(srcFile).mtimeMs > fs.statSync(destFile).mtimeMs) {
-      fs.copyFileSync(srcFile, destFile);
-      console.log(`Copied asset: ${file}`);
-    }
-  });
+  try {
+    await fs.copy(assetsDir, distDir, { overwrite: true });
+    console.log('✅ Assets copied successfully');
+  } catch (err) {
+    console.error('❌ Error copying assets:', err.message);
+  }
 }
 
+// --------------------
 // Start livereload server
+// --------------------
 const liveReloadServer = livereload.createServer();
 liveReloadServer.watch(distDir);
 
+// --------------------
 // Start express server
+// --------------------
 const app = express();
 app.use(connectLivereload());
 app.use(express.static(distDir));
@@ -45,7 +47,9 @@ app.use(express.static(distDir));
 const PORT = 6969;
 app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
 
-// Build TypeScript incrementally
+// --------------------
+// Build TypeScript
+// --------------------
 let ctx;
 async function setupEsbuild() {
   ctx = await esbuild.context({
@@ -54,42 +58,45 @@ async function setupEsbuild() {
     outfile: join(distDir, 'main.js'),
     sourcemap: true,
     platform: 'browser',
-    target: ['esnext']
+    target: ['esnext'],
   });
 
   await ctx.rebuild();
-  console.log('Initial build complete!');
+  console.log('✅ Initial build complete');
 }
 
+// --------------------
 // Watch files
+// --------------------
 function watchFiles() {
   const watcher = chokidar.watch([srcDir, assetsDir], {
     ignoreInitial: true,
     ignored: /(^|[/\\])(\.git|node_modules)/,
   });
 
-watcher.on('all', async (event, pathChanged) => {
-  console.log(`File changed: ${pathChanged} (${event})`);
+  watcher.on('all', async (event, pathChanged) => {
+    console.log(`File changed: ${pathChanged} (${event})`);
 
-  if (pathChanged.startsWith(assetsDir)) {
-    copyAssets();
-  } else {
-    try {
-      await ctx.rebuild();
-      console.log('✅ Rebuild successful!');
-    } catch (err) {
-      console.error('❌ Build failed:', err.message);
-      // Don’t crash — just log and wait for next file change
+    if (pathChanged.startsWith(assetsDir)) {
+      await copyAssets();
+    } else {
+      try {
+        await ctx.rebuild();
+        console.log('✅ Rebuild successful!');
+      } catch (err) {
+        console.error('❌ Build failed:', err.message);
+      }
     }
-  }
 
-  liveReloadServer.refresh('/');
-});
+    liveReloadServer.refresh('/');
+  });
 }
 
+// --------------------
 // Run everything
+// --------------------
 (async () => {
-  copyAssets();
+  await copyAssets();
   await setupEsbuild();
   watchFiles();
 })();

@@ -28,16 +28,34 @@ export const testWorld: WorldData = {
             type: OBJECT_TYPE.CUBOID,
             size: [100, 100, 200],
             position: [5200, 5000, 0],
+            style: {
+                front: 'background: center/80% url(img/gravel.jpg);',
+                left: 'background: url(img/skyscraper_a.jpg);',
+                right: 'background: url(img/skyscraper_a.jpg);',
+                top: 'background: url(img/skyscraper_a.jpg);',
+                bottom: 'background: url(img/skyscraper_a.jpg);',
+            }
         },
         {  // tiny one, right up next b2
             type: OBJECT_TYPE.CUBOID,
-            size: [25, 25, 200],
-            position: [5175, 5000, 0],
+            size: [15, 15, 200],
+            position: [5185, 5000, 0],
+            style: {
+                left: 'background: 50% url(img/duct.jpg);',
+                top: 'background: 50% url(img/duct.jpg);',
+                bottom: 'background: 50% url(img/duct.jpg);'
+            }
         },
         { // lets simulate the top of an elevator shaft on b2
             type: OBJECT_TYPE.CUBOID,
-            size: [25, 25, 10],
-            position: [5225, 5025, 200]
+            size: [35, 15, 15],
+            position: [5185, 5000, 200],
+            style: {
+                front: 'background: 50% url(img/duct.jpg);',
+                top: 'background: 50% url(img/duct.jpg);',
+                left: 'background: 50% url(img/duct.jpg);',
+                bottom: 'background: 50% url(img/duct.jpg);',
+            }
         },
         { // one at the far right
             type: OBJECT_TYPE.CUBOID,

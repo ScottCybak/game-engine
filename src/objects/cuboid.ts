@@ -68,7 +68,7 @@ export class CuboidObject extends ObjectBase<CuboidObjectModel> {
     create() {
         const { element, data } = this;
         const { style } = data;
-        const common = `position: absolute; transform-origin: left top; border: 1px solid white;`;
+        const common = `position: absolute; transform-origin: left top; border: 1px solid black;`;
         element.innerHTML = `
             <!-- front -->
             <div style="${common}
