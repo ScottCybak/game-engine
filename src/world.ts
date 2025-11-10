@@ -82,7 +82,7 @@ export class World {
     doCommands(commands: CommandSet) {
         let x = 0;
         let y = 0;
-        const multiplier = 5;
+        const multiplier = commands.has(COMMAND.SPRINT) ? 6 : 2;
         if (commands.has(COMMAND.MOVE_LEFT)) x = x - 1 * multiplier;
         if (commands.has(COMMAND.MOVE_DOWN)) y = y + 1 * multiplier;
         if (commands.has(COMMAND.MOVE_RIGHT)) x = x + 1 * multiplier;

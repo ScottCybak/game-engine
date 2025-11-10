@@ -12,6 +12,7 @@ export class Input {
         KeyA: COMMAND.MOVE_LEFT,
         KeyS: COMMAND.MOVE_DOWN,
         KeyD: COMMAND.MOVE_RIGHT,
+        ShiftLeft: COMMAND.SPRINT,
         Escape: COMMAND.CANCEL, // this should not be remappable
     });
 
