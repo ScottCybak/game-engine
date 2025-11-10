@@ -1,4 +1,3 @@
-import { Coordinates } from "coordinates";
 import { ObjectBase, ObjectBaseModel, XY } from "object-base";
 import { OBJECT_TYPE } from "object-type";
 
@@ -27,63 +26,57 @@ export class CuboidObject extends ObjectBase<CuboidObjectModel> {
     }
 
     create() {
-        const { data } = this;
-        const { size, style } = data;
-        const [x, y, z] = size;
-        const halfX = x / 2;
-        let doStyle = false;
-        // if (this.limits.left > 5600) {
-        //     doStyle = true;
-        //     console.log('style me..', this);
-        // }
-        this.stylesheet.replaceSync(`
-            .c {
-                width: ${x}px;
-                height: ${y}px;
-                position: relative;
-                transform-style: preserve-3d;
-                transform: translateZ(-${halfX}px);
-            }
-            .f {
-                position: absolute;
-                width: ${x}px;
-                height: ${y}px;
-                border: 1px solid #fff;
-                transition: all 1s linear;
-            }
-            .f-f {
-                transform: rotateY(0deg) translateZ(${halfX}px);
-            }
-            .f-r {
-                transform: rotateY(90deg) translateZ(${halfX}px);
-            }
-            .f-l {
-                transform: rotateY(-90deg) translateZ(${halfX}px);
-            }
-            .f-t {
-                transform: rotateX( 90deg) translateZ(${halfX}px);
-            }
-            .f-b {
-                transform: rotateX(-90deg) translateZ(${halfX}px);
-            }
-            .f-u {
-                transform: rotateY(180deg) translateZ(${halfX}px);
-            }
-        `);
+        const { element, data } = this;
+        const { style } = data;
+        const common = `position: absolute; transform-origin: left top; border: 1px solid white;`;
+        element.innerHTML = `
+            <!-- front -->
+            <div style="${common}
+                width: var(--w);
+                height: var(--l);
+                transform: translateZ(var(--h));
+                ${style?.front ?? ''}
+            "></div>
 
-        const outer = document.createElement('div');
-        outer.classList.add('c');
-        outer.innerHTML = `
-            <div class="f f-f" style="${style?.front}"></div>
-            <div class="f f-l"></div>
-            <div class="f f-r"></div>
-            <div class="f f-t"></div>
-            <div class="f f-b"></div>
-            <div class="f f-u"></div>
+            <!-- back -->
+            <div style="${common}
+                width: var(--w);
+                height: var(--l);
+                ${style?.back ?? ''}
+            "></div>
+            
+            <!-- left -->
+            <div style="${common}
+                width: var(--h);
+                height: var(--l);
+                transform: rotateY(-90deg);
+                ${style?.left ?? ''}
+            "></div>
+
+            <!-- right -->
+            <div style="${common}
+                width: var(--h);
+                height: var(--l);
+                transform: rotateY(90deg) translate3d(var(--neg-d), 0, var(--w));
+                ${style?.right ?? ''}
+            "></div>
+
+            <!-- top -->
+            <div style="${common}
+                width: var(--w);
+                height: var(--h);
+                transform: rotateX(90deg);
+                ${style?.top ?? ''}
+            "></div>
+
+            <!-- bottom -->
+            <div style="${common}
+                height: var(--h);
+                width: var(--w);
+                transform: rotateX(-90deg) translate3d(0, var(--neg-d), var(--l));
+                ${style?.bottom ?? ''}
+            "></div>
         `;
-    
-        this.shadow.appendChild(outer);
-
         return this;
     }
 }

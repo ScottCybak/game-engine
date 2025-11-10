@@ -1,4 +1,5 @@
 import { COMMAND } from "command";
+import { Coordinates } from "coordinates";
 import { debugLogger } from "debug-logger";
 import { Game } from "game";
 import { CommandSet } from "input";
@@ -33,7 +34,7 @@ export class World {
     ) {
         debugLogger.watch(this.currentPosition, 'currentPosition');
         debugLogger.watch(this.scrollPosition, 'scrollPosition');
-        this.currentPosition.watch(pos => this.loadedObjects.forEach(o => o.recalculate(pos)));
+        this.currentPosition.watch(pos => this.onPositionUpdate(pos));
         this.scrollPosition.watch(pos => this.scrollTo(pos));
     }
 
@@ -58,10 +59,6 @@ export class World {
         if (data.objects?.length) {
             this.createObjects(data.objects, element);
         }
-        
-        const spawn = document.createElement('div');
-        spawn.style.cssText = `position: fixed; top: calc(50% - 1px); left: calc(50% - 1px); width: 3px; height: 3px;background: #ff00e9;`;
-        element.appendChild(spawn);
 
         // ok, connect to the page finally, since the heavy lifting is done
         this.game.element?.appendChild(element);
@@ -125,5 +122,19 @@ export class World {
                 console.warn('no class found', o);
             }
         })
+    }
+
+    private onPositionUpdateTick = false;
+    private onPositionUpdate([left, top]: XY) {
+        if (!this.onPositionUpdateTick) {
+            requestAnimationFrame(() => {
+                const { scrollWidth, scrollHeight } = this.element;
+                const x = left / scrollWidth * 100;
+                const y = top / scrollHeight * 100;
+                this.element.style.perspectiveOrigin = `${x}% ${y}%`;
+                this.onPositionUpdateTick = false;
+            });
+            this.onPositionUpdateTick = true;
+        }
     }
 }

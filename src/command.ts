@@ -5,4 +5,6 @@ export enum COMMAND {
     MOVE_RIGHT,
     MOVE_DOWN,
     MOVE_UP,
+    ZOOM_IN,
+    ZOOM_OUT,
 }

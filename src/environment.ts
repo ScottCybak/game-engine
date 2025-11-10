@@ -27,10 +27,6 @@ export class Environment {
         }
     }
 
-    private onCancel() {
-        console.log('cancel heard');
-    }
-
     private onLoadingChange(loading: boolean) {
         this.toggleLoadingOverlay(loading);
     }

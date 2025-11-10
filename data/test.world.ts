@@ -13,25 +13,31 @@ export const testWorld: WorldData = {
             size: [100, 100, 100],
             position: [5000, 5000, 0],
             style: {
-                front: 'background: #f5b40070;'
+                // front: red; // leave so we can see the void 'back'
+                back: 'background: #000000ff',
+                right: 'background: #0004ffff',
+                left: 'background: #ae00ffff',
+                top: 'background: #00ffbfff',
+                bottom: 'background: #eeff00ff',
             }
         },
 
         {
             // test 2, another basic cube on the ground, but further to the edge
             type: OBJECT_TYPE.CUBOID,
-            size: [100, 100, 100],
+            size: [100, 100, 200],
             position: [5200, 5000, 0],
         },
-
+        {  // tiny one
+            type: OBJECT_TYPE.CUBOID,
+            size: [25, 25, 200],
+            position: [5175, 5000, 0],
+        },
         {
             // one at the far right
             type: OBJECT_TYPE.CUBOID,
             size: [100, 100, 100],
             position: [5650, 5000, 0],
-            style: {
-                front: '',
-            }
         },
 
         {
@@ -39,10 +45,6 @@ export const testWorld: WorldData = {
             type: OBJECT_TYPE.CUBOID,
             size: [100, 100, 100],
             position: [4250, 5000, 0],
-            style: {
-                front: 'background: orange;',
-                left: 'background: pink;',
-            }
         },
 
         {

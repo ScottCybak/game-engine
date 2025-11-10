@@ -15,7 +15,13 @@ export class Input {
         Escape: COMMAND.CANCEL, // this should not be remappable
     });
 
+    private defaultCustomEvents = {
+        wheelUp: COMMAND.ZOOM_IN,
+        wheelDown: COMMAND.ZOOM_OUT,
+    }
+
     private keyMap = { ...this.defaultKeyMap };
+    private customEvents = { ...this.defaultCustomEvents };
 
     // holds a set of commands that are currently being instructed to fire
     activeCommands = new Watched(new Set<COMMAND>());
@@ -26,6 +32,9 @@ export class Input {
         document.addEventListener('keydown', ({key}) => {
             const c = this.keyMap[key];
             if (c) {
+                if (c === COMMAND.CANCEL) {
+                    console.log('esc hit'); /// TODO
+                }
                 const activeCommands = this.activeCommands.get();
                 if (!activeCommands.has(c)) {
                     activeCommands.add(c);
@@ -43,6 +52,17 @@ export class Input {
                 }
             }
         });
+        document.addEventListener('wheel', ({ deltaY }) => {
+            let c!: COMMAND;
+            if (deltaY > 0) {
+                c = this.customEvents.wheelDown;
+            } else if (deltaY < 0) {
+                c = this.customEvents.wheelUp;
+            }
+            if (c) {
+                console.log('custom command', c);
+            }
+        })
         return this;
     }
 
