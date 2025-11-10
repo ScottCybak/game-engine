@@ -103,5 +103,7 @@ body, body * {
     top: var(--y);
     width: var(--w);
     height: var(--l);
-    transform: translateZ(var(--z));
+    /* transform: rotate3d(var(--r-x), var(--r-y), var(--r-z)) translateZ(var(--z)); */
+    transform: rotateZ(var(--r-z)) translateZ(var(--z));
+    transform-origin: 50% 50% 0
 }

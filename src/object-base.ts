@@ -3,6 +3,7 @@ import { Coordinates } from "coordinates";
 export interface ObjectBaseModel {
     position: Coordinates;
     size: Coordinates;
+    rotate?: Coordinates;
 }
 
 interface Box {
@@ -34,6 +35,7 @@ export abstract class ObjectBase<T extends ObjectBaseModel> {
     constructor(protected readonly data: T) {
         const [x, y, z] = data.position;
         const [width, height, depth] = data.size;
+        const [rx, ry, rz] = data.rotate ?? [0, 0, 0];
         const { element } = this;
         element.classList.add('object', `object-${(data as any).type}`);
         element.style.cssText = `
@@ -44,6 +46,9 @@ export abstract class ObjectBase<T extends ObjectBaseModel> {
             --l: ${height}px;
             --h: ${depth}px;
             --neg-d: ${-depth}px;
+            --r-x: ${rx}deg;
+            --r-y: ${ry}deg;
+            --r-z: ${rz}deg;
         `;
 
         this.limits = {
@@ -63,7 +68,7 @@ export abstract class ObjectBase<T extends ObjectBaseModel> {
         // e.style.setProperty('-webkit-perspective-origin-y', `${originY}%`);
     }
 
-    abstract doesPointIntersect(point: XY): boolean;
+    abstract doesPointIntersect(point: Coordinates): boolean;
 
     place(appendAsChildTo: HTMLElement) {
         appendAsChildTo.appendChild(this.element);

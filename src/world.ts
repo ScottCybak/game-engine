@@ -3,6 +3,7 @@ import { Coordinates } from "coordinates";
 import { debugLogger } from "debug-logger";
 import { Game } from "game";
 import { CommandSet } from "input";
+import { MinMax } from "min-max";
 import { ObjectBase, XY } from "object-base";
 import { objectClasses, ObjectModel } from "object-classes";
 import { Watched } from "watched";
@@ -23,11 +24,13 @@ export class World {
 
     private element = document.createElement('div');
 
-    private currentPosition = new Watched<XY>([-1000, -1000]);
+    private currentPosition = new Watched<Coordinates>([-1000, -1000, -1000]);
 
     private scrollPosition = this.currentPosition.derive<XY>(current => {
         return [current[0] - window.innerWidth / 2, current[1] - window.innerHeight / 2]
     });
+
+    private speed: MinMax = [1,2];
 
     constructor(
         private game: Game,
@@ -45,7 +48,7 @@ export class World {
 
         const { width, length, perspective } = data;
         const { domId, element } = this;
-        const [x, y] = data.spawn;
+        this.speed = [...data.speed];
         
         element.id = domId;
         element.style.cssText = `
@@ -80,16 +83,17 @@ export class World {
     }
 
     doCommands(commands: CommandSet) {
+        const [minSpeed, maxSpeed] = this.speed;
         let x = 0;
         let y = 0;
-        const multiplier = commands.has(COMMAND.SPRINT) ? 6 : 2;
+        const multiplier = commands.has(COMMAND.SPRINT) ? maxSpeed : minSpeed; // reverse for hold to walk mechanic
         if (commands.has(COMMAND.MOVE_LEFT)) x = x - 1 * multiplier;
         if (commands.has(COMMAND.MOVE_DOWN)) y = y + 1 * multiplier;
         if (commands.has(COMMAND.MOVE_RIGHT)) x = x + 1 * multiplier;
         if (commands.has(COMMAND.MOVE_UP)) y = y - 1 * multiplier;
         if (x || y) {
             const [l, t] = this.currentPosition.get();
-            const targetPos: XY = [l+x, t+y];
+            const targetPos: Coordinates = [l+x, t+y, 0]; // todo - update if we implement Z axis changes
             const candidatePos = this.canMove(targetPos);
             if (candidatePos) {
                 this.currentPosition.set(candidatePos);
@@ -97,8 +101,7 @@ export class World {
         }
     }
 
-    private canMove(to: XY): false | XY {
-        // scan for objects
+    private canMove(to: Coordinates): false | Coordinates {
         const intersections = this.loadedObjects.filter(o => o.doesPointIntersect(to));
         if (intersections.length) {
             // todo; this should be smarter - if moving sw against a flat NS oriented plane, we should continue south
@@ -127,7 +130,7 @@ export class World {
     }
 
     private onPositionUpdateTick = false;
-    private onPositionUpdate([left, top]: XY) {
+    private onPositionUpdate([left, top]: Coordinates) {
         if (!this.onPositionUpdateTick) {
             requestAnimationFrame(() => {
                 const { scrollWidth, scrollHeight } = this.element;

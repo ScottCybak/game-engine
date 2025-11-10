@@ -5,13 +5,15 @@ export const testWorld: WorldData = {
     id: 'test',
     width: 10000,
     length: 10000,
-    spawn: [5205, 4890], // center of the map, on the ground
+    spawn: [5205, 4890, 0], // center of the map, on the ground
     perspective: 600,
+    speed: [5, 15],
     objects: [
         { // test 1, a basic cube, on the ground
             type: OBJECT_TYPE.CUBOID,
             size: [100, 100, 100],
             position: [5000, 5000, 0],
+            rotate: [0, 0, 45],
             style: {
                 // front: red; // leave so we can see the void 'back'
                 back: 'background: #000000ff',

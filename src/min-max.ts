@@ -1,0 +1,1 @@
+export type MinMax = [number, number];
