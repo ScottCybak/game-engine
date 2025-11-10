@@ -8,10 +8,10 @@ type CommandListener = (commands: CommandSet) => void;
 export class Input {
 
     private defaultKeyMap: MappedKeys = Object.freeze({
-        w: COMMAND.MOVE_UP,
-        a: COMMAND.MOVE_LEFT,
-        s: COMMAND.MOVE_DOWN,
-        d: COMMAND.MOVE_RIGHT,
+        KeyW: COMMAND.MOVE_UP,
+        KeyA: COMMAND.MOVE_LEFT,
+        KeyS: COMMAND.MOVE_DOWN,
+        KeyD: COMMAND.MOVE_RIGHT,
         Escape: COMMAND.CANCEL, // this should not be remappable
     });
 
@@ -29,8 +29,8 @@ export class Input {
     private onCommandListeners: CommandListener[] = [];
 
     async initialize(): Promise<this> {
-        document.addEventListener('keydown', ({key}) => {
-            const c = this.keyMap[key];
+        document.addEventListener('keydown', ({code}) => {
+            const c = this.keyMap[code];
             if (c) {
                 if (c === COMMAND.CANCEL) {
                     console.log('esc hit'); /// TODO
@@ -42,8 +42,8 @@ export class Input {
                 }
             }
         });
-        document.addEventListener('keyup', ({ key }) => {
-            const c = this.keyMap[key];
+        document.addEventListener('keyup', ({ code }) => {
+            const c = this.keyMap[code];
             if (c) {
                 const activeCommands = this.activeCommands.get();
                 if (activeCommands.has(c)) {
