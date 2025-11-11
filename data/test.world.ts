@@ -25,38 +25,45 @@ export const testWorld: WorldData = {
                 bottom: 'background: #eeff00ff',
             }
         },
-        {  // b2: basic cube on the ground, but further to the edge ()
-            type: OBJECT_TYPE.CUBOID,
-            size: [100, 100, 200],
-            position: [5200, 5000, 0],
-            style: {
-                front: 'background: center/80% url(img/gravel.jpg);',
-                left: 'background: url(img/skyscraper_a.jpg);',
-                right: 'background: url(img/skyscraper_a.jpg);',
-                top: 'background: url(img/skyscraper_a.jpg);',
-                bottom: 'background: url(img/skyscraper_a.jpg);',
-            }
-        },
-        {  // tiny one, right up next b2
-            type: OBJECT_TYPE.CUBOID,
-            size: [15, 15, 200],
-            position: [5185, 5000, 0],
-            style: {
-                left: 'background: 50% url(img/duct.jpg);',
-                top: 'background: 50% url(img/duct.jpg);',
-                bottom: 'background: 50% url(img/duct.jpg);'
-            }
-        },
-        { // lets simulate the top of an elevator shaft on b2
-            type: OBJECT_TYPE.CUBOID,
-            size: [35, 15, 15],
-            position: [5185, 5000, 200],
-            style: {
-                front: 'background: 50% url(img/duct.jpg);',
-                top: 'background: 50% url(img/duct.jpg);',
-                left: 'background: 50% url(img/duct.jpg);',
-                bottom: 'background: 50% url(img/duct.jpg);',
-            }
+        {  // our weirdly rendered building
+            type: OBJECT_TYPE.GROUP,
+            size: [0, 0, 0],
+            position: [5185, 5000, 0], // items inside a group are relative
+            objects: [
+                {  // b2: basic cube on the ground, but further to the edge ()
+                    type: OBJECT_TYPE.CUBOID,
+                    size: [100, 100, 200],
+                    position: [15, 0, 0],
+                    style: {
+                        front: 'background: center/80% url(img/gravel.jpg);',
+                        left: 'background: url(img/skyscraper_a.jpg);',
+                        right: 'background: url(img/skyscraper_a.jpg);',
+                        top: 'background: url(img/skyscraper_a.jpg);',
+                        bottom: 'background: url(img/skyscraper_a.jpg);',
+                    }
+                },
+                {  // tiny one, right up next b2
+                    type: OBJECT_TYPE.CUBOID,
+                    size: [15, 15, 200],
+                    position: [0, 0, 0],
+                    style: {
+                        left: 'background: 50% url(img/duct.jpg);',
+                        top: 'background: 50% url(img/duct.jpg);',
+                        bottom: 'background: 50% url(img/duct.jpg);'
+                    }
+                },
+                { // lets simulate the top of an elevator shaft on b2
+                    type: OBJECT_TYPE.CUBOID,
+                    size: [35, 15, 15],
+                    position: [0, 0, 200],
+                    style: {
+                        front: 'background: 50% url(img/duct.jpg);',
+                        top: 'background: 50% url(img/duct.jpg);',
+                        left: 'background: 50% url(img/duct.jpg);',
+                        bottom: 'background: 50% url(img/duct.jpg);',
+                    }
+                },
+            ]
         },
         { // one at the far right
             type: OBJECT_TYPE.CUBOID,
