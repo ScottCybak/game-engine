@@ -16,6 +16,7 @@ const makeColorHelper = (color: string) => {
 const helpers = {
     ivory: makeColorHelper('ivory'),
     grey: makeColorHelper('grey'),
+    glass: makeColorHelper('rgba(255, 255, 255, 0.31)')
 }
 
 export const testWorld: WorldData = {
@@ -153,27 +154,27 @@ export const testWorld: WorldData = {
                     objects: [
                         { // west
                             type: OBJECT_TYPE.CUBOID,
-                            size: [5, 140, 15],
-                            position: [5, 5, 0],
-                            style: helpers.ivory, // what happens?
+                            size: [5, 120, 20],
+                            position: [5, 15, 0],
+                            style: helpers.glass,
                         },
                         { // east
                             type: OBJECT_TYPE.CUBOID,
-                            size: [5, 140, 15],
-                            position: [190, 5, 0],
-                            style: helpers.ivory,
+                            size: [5, 120, 20],
+                            position: [190, 15, 0],
+                            style: helpers.glass,
                         },
                         { // north
                             type: OBJECT_TYPE.CUBOID,
-                            size: [180, 5, 15],
-                            position: [10, 5, 0],
-                            style: helpers.ivory,
+                            size: [170, 5, 20],
+                            position: [15, 5, 0],
+                            style: helpers.glass,
                         },
                         { // south
                             type: OBJECT_TYPE.CUBOID,
-                            size: [180, 5, 15],
-                            position: [10, 140, 0],
-                            style: helpers.ivory,
+                            size: [170, 5, 20],
+                            position: [15, 140, 0],
+                            style: helpers.glass,
                         },
                     ],
                 },
