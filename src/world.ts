@@ -84,9 +84,18 @@ export class World {
             .conditional(([t, c]) => !!(t && c.size))
             .derive(([_, c]) => this.doCommands(c));
 
+        // this.createPlayer([data.spawn[0] - 100, data.spawn[1] - 100, 0]);
+
         // and, notify that we're good to go
         this.ready.set(true);
     }
+
+    // deprecated
+    // createPlayer(position: Coordinates) {
+    //     const d = sampleSkeleton;
+    //     const skellyBoy = new Skeleton(d, position).appendTo(this.element);
+    //     console.log('skellyBoy', skellyBoy);
+    // }
 
     centerPositionOn([x, y, z]: Coordinates) {
         const data = this.worldData.get();

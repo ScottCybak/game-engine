@@ -1,5 +1,5 @@
-export const createDiv = (id: string) => {
+export const createDiv = (id?: string) => {
     const div = document.createElement('div');
-    div.id = id;
+    if (id) div.id = id;
     return div;
 }

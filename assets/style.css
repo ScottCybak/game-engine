@@ -102,3 +102,9 @@ body, body * {
     transform: rotateZ(var(--r-z)) translateZ(var(--z));
     transform-origin: 50% 50% 0;
 }
+
+.dot-3d {
+    position: absolute;
+    border-radius: 50%;
+    background: magenta;
+}
